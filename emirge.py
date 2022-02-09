@@ -1075,7 +1075,7 @@ class EM(object):
             logging.info("\tFinished Bowtie for iteration %02d at %s:\n"%(self.iteration_i, ctime()))
 
         # 3. clean up
-        # check_call("samtools index %s.sort.PE.bam"%(output_prefix), shell=True, stdout = sys.stdout, stderr = sys.stderr)
+        check_call("samtools index %s.sort.PE.bam"%(output_prefix), shell=True, stdout = sys.stdout, stderr = sys.stderr)
         check_call("gzip -f %s"%(bowtie_logfile), shell=True)
 
         assert self.iterdir != '/'
