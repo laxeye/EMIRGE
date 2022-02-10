@@ -374,8 +374,8 @@ class EM(object):
         ON EXIT: ready for do_iteration to be called with next iteration.
         """
         self.resume_i = resume_from
-        resume_iterdir = os.path.join(self.cwd, "%s%02d"%(self.iterdir_prefix, self.resume_i))
-        previous_iterdir = os.path.join(self.cwd, "%s%02d"%(self.iterdir_prefix, self.resume_i - 1))
+        resume_iterdir = os.path.join(working_dir, "assembly", "%s%02d"%(self.iterdir_prefix, self.resume_i))
+        previous_iterdir = os.path.join(working_dir, "assembly", "%s%02d"%(self.iterdir_prefix, self.resume_i - 1))
         if not os.path.exists(resume_iterdir):
             raise OSError("\n\nERROR: Cannot resume from non-existent directory %s"%(resume_iterdir))
         if not os.path.exists(previous_iterdir):
