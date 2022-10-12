@@ -62,8 +62,8 @@ Short-Read Assembly of Full-Length 16S Amplicons Reveals Bacterial Diversity in 
 PloS one 8: e56018. doi:10.1371/journal.pone.0056018.
 """
 
-BOWTIE_l = 20
-BOWTIE_e = 300
+BOWTIE_l = 20   # First `L` bases (L > 4) on the high-quality (left) end of the read.
+BOWTIE_e = 300  # Sum of PHRED qualities at all mismatched positions
 
 BOWTIE_ASCII_OFFSET = 33   # currently, bowtie writes quals with an ascii offset of 33
 
@@ -1045,7 +1045,7 @@ class EM(object):
         output_prefix = os.path.join(self.iterdir, "bowtie.iter.%02d"%(self.iteration_i))
 
         if self.reads2_filepath is not None:
-            bowtie_command = "%s %s | %s bowtie %s --minins %d --maxins %d %s -1 - -2 %s | samtools view -b -S -F 0x0004 - > %s.PE.bam 2> %s "%(\
+            bowtie_command = "%s %s | %s bowtie %s --minins %d --maxins %d %s -1 - -2 %s | samtools view -b -S -F 0x0004 - | samtools sort - > %s.PE.bam 2> %s "%(\
                 cat_cmd,
                 self.reads1_filepath,
                 nicestring,
@@ -1056,7 +1056,7 @@ class EM(object):
                 output_prefix,
                 bowtie_logfile)
         else: # single reads
-            bowtie_command = "%s %s | %s bowtie %s %s - | samtools view -b -S -F 0x0004 - > %s.PE.bam 2> %s "%(\
+            bowtie_command = "%s %s | %s bowtie %s %s - | samtools view -b -S -F 0x0004 - | samtools sort - > %s.PE.bam 2> %s "%(\
                 cat_cmd,
                 self.reads1_filepath,
                 nicestring,
@@ -1472,11 +1472,11 @@ def do_initial_mapping(working_dir, options):
     # PAIRED END MAPPING
     if options.fastq_reads_2 is not None:
         option_strings.extend([minins, maxins, options.bowtie_db, options.fastq_reads_2, bampath_prefix])
-        cmd = "%s %s | %s bowtie --phred%d-quals -t -p %s -n 3 -l %s -e %s --best --sam --chunkmbs 128 --minins %s --maxins %s %s -1 - -2 %s | samtools view -b -S -u -F 0x0004 - > %s.bam "%tuple(option_strings)    
+        cmd = "%s %s | %s bowtie --phred%d-quals -t -p %s -n 3 -l %s -e %s --best --sam --chunkmbs 128 --minins %s --maxins %s %s -1 - -2 %s | samtools view -b -S -u -F 0x0004 - | samtools sort - > %s.bam "%tuple(option_strings)
     # SINGLE END MAPPING
     else:
         option_strings.extend([options.bowtie_db, bampath_prefix])
-        cmd = "%s %s | %s bowtie --phred%d-quals -t -p %s -n 3 -l %s -e %s --best --sam --chunkmbs 128  %s - | samtools view -b -S -u -F 0x0004 - > %s.bam "%tuple(option_strings)    
+        cmd = "%s %s | %s bowtie --phred%d-quals -t -p %s -n 3 -l %s -e %s --best --sam --chunkmbs 128  %s - | samtools view -b -S -u -F 0x0004 - | samtools sort - > %s.bam "%tuple(option_strings)
 
     logging.info("Performing initial mapping with command:\n%s"%cmd)
     check_call(cmd, shell=True, stdout = sys.stdout, stderr = sys.stderr)
